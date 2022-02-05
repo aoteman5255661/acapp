@@ -16,11 +16,13 @@ class AcGameObject{
 
     }
 
-    ondestroy(){  //在被销毁前执行一次
+    on_destroy(){  //在被销毁前执行一次
 
     }
 
     destroy(){  //删除物体
+        this.on_destroy();
+
         for(let i = 0; i < AC_GAME_OBJECTS.length; i++){
             if(AC_GAME_OBJECTS[i] === this){
                 AC_GAME_OBJECTS.splice(i, 1);
