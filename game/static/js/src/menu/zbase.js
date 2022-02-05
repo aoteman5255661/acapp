@@ -54,6 +54,4 @@ class AcGameMenu{
     hide(){  //关闭menu
         this.$menu.hide();
     }
-
-
 }
