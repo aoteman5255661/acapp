@@ -35,7 +35,9 @@ class AcGameMenu{
     add_listening_event(){
         let outer = this
         this.$single.click(function (){
-            console.log("click single mod")
+            outer.hide();
+            outer.root.playground.show();
+            // console.log("click single mod")
         })
         this.$multi.click(function (){
             console.log("click multi mode")
@@ -43,6 +45,14 @@ class AcGameMenu{
         this.$settings.click(function (){
             console.log("click settings")
         })
+    }
+
+    show(){  //显示menu
+        this.$menu.show();
+    }
+
+    hide(){  //关闭menu
+        this.$menu.hide();
     }
 
 
