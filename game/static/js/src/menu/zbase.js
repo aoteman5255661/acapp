@@ -19,7 +19,7 @@ class AcGameMenu{
     </div>
 </div>
         `);
-        console.log(3333)
+        this.$menu.hide();
         this.root.$ac_game.append(this.$menu);
         this.$single = this.$menu.find(".ac-game-menu-field-single-mode");
         this.$multi = this.$menu.find(".ac-game-menu-field-multi-mode");
