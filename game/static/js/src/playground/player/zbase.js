@@ -36,10 +36,11 @@ class Player extends AcGameObject{
         this.playground.game_map.$canvas.on("contextmenu", function (){
             return false;
         });
-        let outer = this
+        let outer = this;
         this.playground.game_map.$canvas.mousedown(function (e){
-            if(e.which == 3){
-                outer.move_to(e.clientX, e.clientY);
+            const rect = outer.ctx.canvas.getBoundingClientRect();
+            if(e.which === 3){
+                outer.move_to(e.clientX-rect.left, e.clientY-rect.top);
             }else if(e.which ===  1){
                 if(outer.cur_skill === "fireball"){
                     outer.shoot_fireball(e.clientX, e.clientY);
