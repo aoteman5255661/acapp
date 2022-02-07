@@ -3,6 +3,9 @@ class Settings{
         this.root = root;
         this.platform = "WEB";
         if(this.root.AcWingOS) this.platform = "ACAPP";
+        this.username = "";
+        this.p = "";
+        this.k = "cccccccccccc";
 
         this.start();
     }
@@ -31,8 +34,11 @@ class Settings{
             success: function (resp){
                 console.log(resp);
                 if(resp.result === "success"){
+                    outer.username = resp.username;
+                    outer.photo = resp.photo;
                     outer.hide();
                     outer.root.menu.show();
+                    console.log(resp);
                 }else{
                     outer.login();
                 }
