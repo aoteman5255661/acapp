@@ -96,10 +96,10 @@ class Settings{
         this.$login.hide();
 
         this.$register = this.$settings.find(".ac-game-settings-register");
-        this.$register_username = this.$register.find(".ac-game-settings-usernmae  input");
+        this.$register_username = this.$register.find(".ac-game-settings-username  input");
         this.$register_password = this.$register.find(".ac-game-settings-password-first  input");
         this.$register_password_confirm = this.$register.find(".ac-game-settings-password-second input");
-        this.$register_submit = this.$register.find(".ac-game-setting-submit button");
+        this.$register_submit = this.$register.find(".ac-game-settings-submit button");
         this.$register_error_message = this.$register.find(".ac-game-settings-error-message");
         this.$register_login = this.$register.find(".ac-game-settings-option");
         this.$register.hide();
@@ -131,9 +131,14 @@ class Settings{
 
     add_listening_events_register(){
         let outer = this;
+        console.log("zzzzzzzzzzzzzz")
+
         this.$register_login.click(function(){
             outer.login();
         });
+        this.$register_submit.click(function(){
+            outer.register_on_remote();
+        })
     }
 
     login_on_remote(){   //在远程服务器上登录
@@ -162,10 +167,45 @@ class Settings{
     }
 
     register_on_remote(){  //在远程服务器上注册
+        let outer = this;
+        let username = this.$register_username.val();
+        let password = this.$register_password.val();
+        let password_confirm = this.$register_password_confirm.val();
+        this.$register_error_message.empty();
+        console.log("yyyyyyyyyy")
+
+        $.ajax({
+            url: "https://app1432.acapp.acwing.com.cn/settings/register",
+            type: "GET",
+            data:{
+                username: username,
+                password: password,
+                password_confirm: password_confirm,
+            },
+            success: function (resp){
+                console.log(resp);
+                if(resp.result === "success"){
+                    location.reload();
+                }else{
+                    outer.$register_error_message.html(resp.result);
+                }
+            }
+        })
     }
 
     logout_on_remote(){   //在远程服务器上登出
+        if(this.platform === "ACAPP") return false;
 
+        $.ajax({
+            url: "https://app1432.acapp.acwing.com.cn/settings/logout/",
+            type: "GET",
+            success: function (resp){
+                console.log(resp);
+                if(resp.result === "success"){
+                    location.reload();
+                }
+            }
+        })
     }
 
     register(){
