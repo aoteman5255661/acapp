@@ -12,13 +12,13 @@ def get_state():
 
 def apply_code(request):
     appid = "1432"
-    redirect_uri = quote("https://www.acwing.com/third_party/api/oauth2/web/authorize/?appid=APPID&redirect_uri=REDIRECT_URI&scope=SCOPE&state=STATE")
+    redirect_uri = quote("https://app1432.acapp.acwing.com.cn/settings/acwing/web/receive_code")
     scope = "userinfo"
     state = get_state()
 
     cache.set(state, True, 7200)  #有效期
 
-    apply_code_url = "https://www.acwing.com/third_party/api/oauth2/web/authorize/"
+    apply_code_url = "https://www.acwing.com/third_party/api/oauth2/web/authorize"
     return JsonResponse({
         'result': "success",
         'apply_code_url': apply_code_url + "?appid=%s&redirect_uri=%s&scope=%s&state=%s" % (appid, redirect_uri, scope, state)
