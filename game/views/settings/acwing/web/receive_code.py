@@ -6,6 +6,7 @@ from game.models.player.player import Player
 from django.contrib.auth import login
 from random import randint
 
+
 def receive_code(request):
     data = request.GET
     code = data.get("code")
@@ -27,9 +28,8 @@ def receive_code(request):
     access_token = access_token_res['access_token']
     openid = access_token_res['openid']
 
-
     players = Player.objects.filter(openid=openid)
-    if players.exists():  #如果该用户已存在，则无需重新获取信息，直接登录即可
+    if players.exists():  # 如果该用户已存在，则无需重新获取信息，直接登录即可
         login(request, players[0].user)
         return redirect("index")
 

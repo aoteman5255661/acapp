@@ -251,6 +251,7 @@ class Settings{
         console.log(redirect_uri)
         console.log(scope)
         console.log(state)
+        console.log(this.root.AcWingOS.api.oauth2.authorize)
         this.root.AcWingOS.api.oauth2.authorize(appid, redirect_uri, scope, state, function (resp){
             console.log("called from acapp_login   >>>>>  ")
             console.log(resp);
