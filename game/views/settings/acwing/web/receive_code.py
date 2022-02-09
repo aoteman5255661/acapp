@@ -19,7 +19,7 @@ def receive_code(request):
     apply_access_token_url = "https://www.acwing.com/third_party/api/oauth2/access_token/"
     params = {
         'appid': "1432",
-        'secret': "eb6720a5760a43bc9aae942649d1b3f1",
+        'secret': "ac49c64663bc49cabcdebbfafe5e7fc5",
         'code': code,
     }
 
@@ -28,8 +28,10 @@ def receive_code(request):
     access_token = access_token_res['access_token']
     openid = access_token_res['openid']
 
+    print("openid :::   ", openid)
     players = Player.objects.filter(openid=openid)
     if players.exists():  # 如果该用户已存在，则无需重新获取信息，直接登录即可
+        print("该用户已存在")
         login(request, players[0].user)
         return redirect("index")
 

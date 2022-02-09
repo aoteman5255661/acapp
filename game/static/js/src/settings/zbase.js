@@ -247,19 +247,18 @@ class Settings{
 
     acapp_login(appid, redirect_uri, scope, state){
         let outer = this;
-        console.log(appid)
-        console.log(redirect_uri)
-        console.log(scope)
-        console.log(state)
-        console.log(this.root.AcWingOS.api.oauth2.authorize)
         this.root.AcWingOS.api.oauth2.authorize(appid, redirect_uri, scope, state, function (resp){
-            console.log("called from acapp_login   >>>>>  ")
+            console.log("called from acapp_login   >>>>>  kkk     ")
             console.log(resp);
-            if(resp.result === "success"){
+            if(resp.result === 'success'){
+                console.log('zzzzzzzzzzzzz')
                 outer.username = resp.username;
                 outer.photo = resp.photo;
+                console.log(outer.username)
+                console.log(outer.photo)
                 outer.hide();
                 outer.root.menu.show();
+                console.log(111111)
             }
         });
     }
