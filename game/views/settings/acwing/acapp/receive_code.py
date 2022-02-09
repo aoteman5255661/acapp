@@ -41,8 +41,12 @@ def receive_code(request):
 
     players = Player.objects.filter(openid=openid)
     if players.exists():  #如果该用户已存在，则无需重新获取信息，直接登录即可
-        login(request, players[0].user)
-        return redirect("index")
+        player = players[0]
+        return JsonResponse({
+            "reuslt": "success",
+            "username": player.user.username,
+            "photo": player.photo,
+        })
 
     get_userinfo_url = "https://www.acwing.com/third_party/api/meta/identity/getinfo"
     params = {
@@ -60,6 +64,8 @@ def receive_code(request):
     user = User.objects.create(username=username)
     player = Player.objects.create(user=user, photo=photo, openid=openid)
 
-    login(request, user)
-
-    return redirect("index")
+    return JsonResponse({
+        "reuslt": "success",
+        "username": player.user.username,
+        "photo": player.photo,
+    })

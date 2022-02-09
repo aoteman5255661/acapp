@@ -118,8 +118,8 @@ class Settings{
             this.getinfo_web();
             this.add_listening_events();
         }
-        this.getinfo();
-        this.add_listening_events();
+        // this.getinfo();
+        // this.add_listening_events();
     }
 
     add_listening_events(){
@@ -158,6 +158,7 @@ class Settings{
             url: "https://app1432.acapp.acwing.com.cn/settings/acwing/web/apply_code/",
             type: "GET",
             success: function (resp){
+
                 console.log(resp);
                 if(resp.result === "success"){
                     window.location.replace(resp.apply_code_url);
@@ -246,11 +247,16 @@ class Settings{
 
     acapp_login(appid, redirect_uri, scope, state){
         let outer = this;
-        AcWingOS.api.oauth2.authorize(appid, redirect_uri, scope, state, callback, function (resp){
+        console.log(appid)
+        console.log(redirect_uri)
+        console.log(scope)
+        console.log(state)
+        this.root.AcWingOS.api.oauth2.authorize(appid, redirect_uri, scope, state, function (resp){
+            console.log("called from acapp_login   >>>>>  ")
             console.log(resp);
             if(resp.result === "success"){
                 outer.username = resp.username;
-                outer.photo = photo;
+                outer.photo = resp.photo;
                 outer.hide();
                 outer.root.menu.show();
             }
@@ -265,6 +271,7 @@ class Settings{
             type: "GET",
             success: function (resp){
                 if(resp.result === "success"){
+                    console.log(resp)
                     outer.acapp_login(resp.appid, resp.redirect_uri, resp.scope, resp.state);
                 }
             }
