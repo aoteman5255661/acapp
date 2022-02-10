@@ -36,11 +36,12 @@ class AcGameMenu{
         let outer = this
         this.$single.click(function (){
             outer.hide();
-            outer.root.playground.show();
+            outer.root.playground.show("single mode");
             // console.log("click single mod")
         })
         this.$multi.click(function (){
-            console.log("click multi mode")
+            outer.hide();
+            outer.root.playground.show("multi mode");
         })
         this.$settings.click(function (){
             console.log("click settings")
