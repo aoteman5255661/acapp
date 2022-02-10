@@ -5,7 +5,7 @@ from django.contrib import auth
 import sys
 
 
-def getinfo_accaap(request):
+def getinfo_accapp(request):
     player = Player.objects.all()[0]
     return JsonResponse({
         'result': "success",
@@ -40,6 +40,6 @@ def getinfo(request):
     print('zzzzzz')
     platform = request.GET.get("platform")
     if platform == "ACAPP":
-        return getinfo_accaap(request)
+        return getinfo_accapp(request)
     elif platform == "WEB":
         return getinfo_web(request)
