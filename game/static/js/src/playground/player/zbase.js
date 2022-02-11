@@ -1,6 +1,6 @@
 class Player extends AcGameObject{
     constructor(playground, x, y, radius, color, speed, character, username, photo) {
-        console.log(character, ' ', username, ' ', photo);
+        // console.log(character, ' ', username, ' ', photo);
 
         super();
         this.playground = playground;
@@ -22,7 +22,7 @@ class Player extends AcGameObject{
         this.eps = 0.01;
         this.friction = 0.9;
         this.spent_time = 0;
-        console.log(color)
+        // console.log(color)
         this.cur_skill = null;
 
         if(this.character){
@@ -59,7 +59,14 @@ class Player extends AcGameObject{
         this.playground.game_map.$canvas.mousedown(function (e){
             const rect = outer.ctx.canvas.getBoundingClientRect();
             if(e.which === 3){
-                outer.move_to((e.clientX-rect.left)/outer.playground.scale, (e.clientY-rect.top)/outer.playground.scale);
+                let tx = (e.clientX-rect.left)/outer.playground.scale;
+                let ty = (e.clientY-rect.top)/outer.playground.scale;
+                outer.move_to(tx, ty);
+
+                if(outer.playground.mode === "multi mode"){
+                    console.log("多人 移动")
+                    outer.playground.mps.send_move_to(tx, ty);
+                }
             }else if(e.which ===  1){
                 if(outer.cur_skill === "fireball"){
                     outer.shoot_fireball((e.clientX-rect.left)/outer.playground.scale, (e.clientY-rect.top)/outer.playground.scale);
@@ -95,7 +102,7 @@ class Player extends AcGameObject{
     }
 
     move_to(tx, ty){
-        console.log("move to", tx, ty);
+        // console.log("move to", tx, ty);
         this.move_length = this.get_dist(this.x, this.y, tx, ty);
         let angle = Math.atan2(ty-this.y, tx-this.x);
         this.vx = Math.cos(angle);
@@ -168,7 +175,7 @@ class Player extends AcGameObject{
     render(){
         let scale = this.playground.scale;
         if(this.character !== "robot"){
-            console.log(this.img.src)
+            // console.log(this.img.src)
             this.ctx.save();
             this.ctx.beginPath();
             this.ctx.arc(this.x * scale, this.y * scale, this.radius * scale, 0, Math.PI * 2, false);
