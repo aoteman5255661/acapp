@@ -14,9 +14,10 @@ class MultiPlayerSocket{
 
     receive(){
         let outer = this;
+        console.log("start ws")
         this.ws.onmessage = function (e){
             let data = JSON.parse(e.data);
-            // console.log(data);
+            console.log(data);
             let uuid = data.uuid;
 
             if(uuid === outer.uuid) return false;
@@ -30,6 +31,8 @@ class MultiPlayerSocket{
             }else  if(event === "shoot_fireball"){
                 console.log("接受发射")
                 outer.receive_shoot_fireball(uuid, data.tx, data.ty, data.ball_uuid);
+            }else if(event === 'attack'){
+                outer.receive_attack(uuid, data.attackee_uuid, data.x, data.y, data.angle, data.damage, data.ball_uuid);
             }
 
         };
@@ -108,6 +111,35 @@ class MultiPlayerSocket{
             let fireball = player.shoot_fireball(tx, ty);
             fireball.uuid = ball_uuid;
             console.log("收到 发射！！！！！！！")
+        }
+    }
+
+    send_attack(attackee_uuid, x, y, angle, damage, ball_uuid){
+        let outer = this;
+        this.ws.send(JSON.stringify({
+            'event': "attack",
+            'uuid': outer.uuid,
+            'attackee_uuid': attackee_uuid,
+            'x': x,
+            'y': y,
+            'angle': angle,
+            'damage': damage,
+            'ball_uuid': ball_uuid,
+        }))
+
+    }
+
+    receive_attack(uuid, attackee_uuid, x, y, angle, damge, ball_uuid){
+        let attacker = this.get_player(uuid);
+        let attackee = this.get_player(attackee_uuid);
+        console.log("++++++++++++++++")
+        console.log(attacker);
+        console.log("====================")
+        console.log(attackee);
+        console.log("&&&&&&&&&&&&&&&&&")
+        if(attacker && attackee){
+            console.log('进入')
+            attackee.receive_attack(x, y, angle, damge,ball_uuid, attacker);
         }
     }
 

@@ -112,7 +112,7 @@ class Player extends AcGameObject{
         for(let i = 0; i < this.fireballs.length; i++){
             let fireball = this.fireballs[i];
             if(this.fireballs[i].uuid === uuid){
-                fireball.decode();
+                fireball.destroy();
                 break;
             }
         }
@@ -155,6 +155,16 @@ class Player extends AcGameObject{
         this.speed *= 0.8;
 
     }
+
+    receive_attack(x, y, angle, damage, ball_uuid, attacker){
+        console.log(ball_uuid)
+        console.log(attacker)
+        attacker.destroy_fireball(ball_uuid);
+        this.x = x;
+        this.y = y;
+        this.is_attacked(angle, damage);
+    }
+
 
     update(){
         this.update_move();
