@@ -40,9 +40,23 @@ class Player extends AcGameObject{
             // console.log(t.photo);
         }
 
+        if(this.character === "me"){
+            this.fireball_coldtime = 3; //单位秒
+            this.fireball_img = new Image();
+            this.fireball_img.src = "https://cdn.acwing.com/media/article/image/2021/12/02/1_9340c86053-fireball.png";
+        }
+
     }
 
     start(){
+        this.playground.player_count++;
+        this.playground.notice_board.write("已就绪：" + this.playground.player_count + "人");
+
+        if(this.playground.player_count >= 3){
+            this.playground.state = "fighting";
+            this.playground.notice_board.write("Fighting");
+        }
+
         // console.log(this.character)
         if(this.character === "me"){
             this.add_listening_events();
@@ -59,6 +73,9 @@ class Player extends AcGameObject{
         });
         let outer = this;
         this.playground.game_map.$canvas.mousedown(function (e){
+            if(outer.playground.state !== "fighting")
+                return false;
+
             const rect = outer.ctx.canvas.getBoundingClientRect();
             if(e.which === 3){
                 let tx = (e.clientX-rect.left)/outer.playground.scale;
@@ -70,6 +87,8 @@ class Player extends AcGameObject{
                     outer.playground.mps.send_move_to(tx, ty);
                 }
             }else if(e.which ===  1){
+                if(outer.fireball_coldtime > outer.eps)
+                    return false;
                 let tx = (e.clientX-rect.left)/outer.playground.scale;
                 let ty = (e.clientY-rect.top)/outer.playground.scale;
                 if(outer.cur_skill === "fireball"){
@@ -85,6 +104,12 @@ class Player extends AcGameObject{
         })
 
         $(window).keydown(function (e){
+            if(outer.playground.state !== "fighting")
+                return false;
+
+            if(outer.fireball_coldtime > outer.eps)
+                return false;
+
             if(e.which === 81){  //q
                 outer.cur_skill = "fireball";
                 return false;
@@ -103,6 +128,8 @@ class Player extends AcGameObject{
         let move_length = 1;
         let fireball = new FireBall(this.playground, this, x, y, radius, vx, vy, color, speed, move_length, 0.01);
         this.fireballs.push(fireball);
+
+        this.fireball_coldtime = 3;
 
         return fireball;
 
@@ -157,8 +184,8 @@ class Player extends AcGameObject{
     }
 
     receive_attack(x, y, angle, damage, ball_uuid, attacker){
-        console.log(ball_uuid)
-        console.log(attacker)
+        // console.log(ball_uuid)
+        // console.log(attacker)
         attacker.destroy_fireball(ball_uuid);
         this.x = x;
         this.y = y;
@@ -167,12 +194,24 @@ class Player extends AcGameObject{
 
 
     update(){
+        this.spent_time += this.timedelta / 1000;
+
+        if(this.character === "me" && this.playground.state === "fighting"){
+            this.update_coldtime();
+        }
+
         this.update_move();
         this.render();
     }
 
+    update_coldtime() {
+        this.fireball_coldtime -= this.timedelta / 1000;
+        this.fireball_coldtime = Math.max(this.fireball_coldtime, 0);
+
+        // console.log(this.fireball_coldtime);
+    }
+
     update_move(){   //更新玩家移动
-        this.spent_time += this.timedelta / 1000;
         // console.log(this.character)
 
         if(this.character === "robot" && this.spent_time > 5 && Math.random() < 1 / 300.0){
@@ -222,6 +261,32 @@ class Player extends AcGameObject{
             this.ctx.beginPath();
             this.ctx.arc(this.x * scale, this.y * scale, this.radius * scale, 0,  Math.PI * 2, false);
             this.ctx.fillStyle = this.color;
+            this.ctx.fill();
+        }
+
+        if(this.character === "me" && this.playground.state === "fighting"){
+            this.render_skill_coldtime();
+        }
+    }
+
+    render_skill_coldtime(){
+        let scale = this.playground.scale;
+        let x = 1.5, y = 0.9, r = 0.04;
+
+        this.ctx.save();
+        this.ctx.beginPath();
+        this.ctx.arc(x * scale, y * scale, r * scale, 0, Math.PI * 2, false);
+        this.ctx.stroke();
+        this.ctx.clip();
+        this.ctx.drawImage(this.fireball_img, (x - r) * scale, (y - r) * scale, r * 2 * scale, r * 2 * scale);
+        this.ctx.restore();
+
+        if(this.fireball_coldtime > 0){
+            this.ctx.beginPath();
+            this.ctx.moveTo(x * scale, y * scale);
+            this.ctx.arc(x * scale, y * scale, r * scale, 0-Math.PI/2,  Math.PI * 2 * (1-this.fireball_coldtime / 3) - Math.PI / 2, true);
+            this.ctx.lineTo(x * scale, y * scale);
+            this.ctx.fillStyle = "rgb(0, 0, 255, 0.6)";
             this.ctx.fill();
         }
 
