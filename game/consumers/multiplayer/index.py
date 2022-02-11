@@ -15,8 +15,8 @@ class MultiPlayer(AsyncWebsocketConsumer):
     async def create_player(self, data):
         self.room_name = None
         start = 0
-        if data['username'] != '羽兰明月':
-            start = 10000
+        # if data['username'] != '羽兰明月':
+        #     start = 10000
 
         for i in range(start, 100000):
             name = "room-%d" % i
