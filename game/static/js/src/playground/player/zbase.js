@@ -42,7 +42,8 @@ class Player extends AcGameObject{
     }
 
     start(){
-        if(this.character !== "robot"){
+        console.log(this.character)
+        if(this.character === "me"){
             this.add_listening_events();
         }else if(this.character === "robot"){
             let tx = Math.random() * this.playground.width / this.playground.scale;
@@ -140,6 +141,7 @@ class Player extends AcGameObject{
 
     update_move(){   //更新玩家移动
         this.spent_time += this.timedelta / 1000;
+        console.log(this.character)
 
         if(this.character === "robot" && this.spent_time > 5 && Math.random() < 1 / 300.0){
             let player = this.playground.players[Math.floor(Math.random() * this.playground.players.length)];
@@ -174,6 +176,7 @@ class Player extends AcGameObject{
 
     render(){
         let scale = this.playground.scale;
+
         if(this.character !== "robot"){
             // console.log(this.img.src)
             this.ctx.save();
