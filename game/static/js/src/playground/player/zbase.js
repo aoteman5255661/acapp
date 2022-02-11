@@ -43,7 +43,7 @@ class Player extends AcGameObject{
     }
 
     start(){
-        console.log(this.character)
+        // console.log(this.character)
         if(this.character === "me"){
             this.add_listening_events();
         }else if(this.character === "robot"){
@@ -70,8 +70,15 @@ class Player extends AcGameObject{
                     outer.playground.mps.send_move_to(tx, ty);
                 }
             }else if(e.which ===  1){
+                let tx = (e.clientX-rect.left)/outer.playground.scale;
+                let ty = (e.clientY-rect.top)/outer.playground.scale;
                 if(outer.cur_skill === "fireball"){
-                    outer.shoot_fireball((e.clientX-rect.left)/outer.playground.scale, (e.clientY-rect.top)/outer.playground.scale);
+                    let fireball = outer.shoot_fireball(tx, ty);
+
+                    if(outer.playground.mode === "multi mode"){
+                        console.log("发射同步  ")
+                        outer.playground.mps.send_shoot_fireball(tx, ty, fireball.uuid);
+                    }
                 }
                 outer.cur_skill = null;
             }
@@ -97,6 +104,18 @@ class Player extends AcGameObject{
         let fireball = new FireBall(this.playground, this, x, y, radius, vx, vy, color, speed, move_length, 0.01);
         this.fireballs.push(fireball);
 
+        return fireball;
+
+    }
+
+    destroy_fireball(uuid) {
+        for(let i = 0; i < this.fireballs.length; i++){
+            let fireball = this.fireballs[i];
+            if(this.fireballs[i].uuid === uuid){
+                fireball.decode();
+                break;
+            }
+        }
     }
 
     get_dist(x1, y1, x2, y2){
@@ -144,7 +163,7 @@ class Player extends AcGameObject{
 
     update_move(){   //更新玩家移动
         this.spent_time += this.timedelta / 1000;
-        console.log(this.character)
+        // console.log(this.character)
 
         if(this.character === "robot" && this.spent_time > 5 && Math.random() < 1 / 300.0){
             let player = this.playground.players[Math.floor(Math.random() * this.playground.players.length)];
@@ -203,6 +222,7 @@ class Player extends AcGameObject{
         for(let i = 0; i < this.playground.players.length; i++){
             if(this.playground.players[i] === this){
                 this.playground.players.splice(i, 1);
+                break;
             }
         }
     }
