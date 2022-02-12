@@ -134,11 +134,11 @@ class MultiPlayerSocket{
     receive_attack(uuid, attackee_uuid, x, y, angle, damge, ball_uuid){
         let attacker = this.get_player(uuid);
         let attackee = this.get_player(attackee_uuid);
-        console.log("++++++++++++++++")
-        console.log(attacker);
-        console.log("====================")
-        console.log(attackee);
-        console.log("&&&&&&&&&&&&&&&&&")
+        // console.log("++++++++++++++++")
+        // console.log(attacker);
+        // console.log("====================")
+        // console.log(attackee);
+        // console.log("&&&&&&&&&&&&&&&&&")
         if(attacker && attackee){
             console.log('进入')
             attackee.receive_attack(x, y, angle, damge,ball_uuid, attacker);
