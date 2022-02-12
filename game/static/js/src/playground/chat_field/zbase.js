@@ -30,6 +30,7 @@ class ChatFeild{
                if(text){
                    outer.$input.val("");
                    outer.add_message(username, text);
+                   outer.playground.mps.send_message(username, text);
                }
                return false;
            }
