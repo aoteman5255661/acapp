@@ -1,8 +1,8 @@
 #! /usr/bin/env python3
 
-
 import glob
 import sys
+
 # sys.path.append('gen-py')
 sys.path.insert(0, glob.glob('../../')[0])
 
@@ -10,58 +10,165 @@ sys.path.insert(0, glob.glob('../../')[0])
 # from tutorial.ttypes import InvalidOperation, Operation
 
 # from shared.ttypes import SharedStruct
-
+from match_server.match_service import Match
 from thrift.transport import TSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
 
+from queue import Queue
+from time import sleep
+from threading import Thread
 
-class CalculatorHandler:
+from acapp.asgi import channels_layer
+from asgiref.sync import async_to_sync
+from django.core.cache import cache
+
+queue = Queue()  # 消息队列
+
+
+class Player:
+    def __init__(self, score, uuid, username, photo, channel_name):
+        self.score = score
+        self.uuid = uuid
+        self.username = username
+        self.photo = photo
+        self.channel_name = channel_name
+        self.waiting_time = 0  # 等待时间
+
+
+class Pool:
     def __init__(self):
-        self.log = {}
+        self.players = []
 
-    def ping(self):
-        print('ping()')
+    def add_player(self, player):
+        print("Add Player: %s %d" % (player.username, player.score))
+        self.players.append(player)
 
-    def add(self, n1, n2):
-        print('add(%d,%d)' % (n1, n2))
-        return n1 + n2
+    def check_match(self, a, b):
+        # if a.username == b.username:
+        #     return False
+        dt = abs(a.score - b.score)
+        a_max_dif = a.waiting_time * 50
+        b_max_dif = b.waiting_time * 50
+        return dt <= a_max_dif and dt <= b_max_dif
 
-    def calculate(self, logid, work):
-        print('calculate(%d, %r)' % (logid, work))
+    def match_success(self, ps):
+        print("Match Success: %s %s %s" % (ps[0].username, ps[1].username, ps[2].username))
+        room_name = "room-%s-%s-%s" % (ps[0].uuid, ps[1].uuid, ps[2].uuid)
+        players = []
+        for p in ps:
+            async_to_sync(channels_layer.group_add)(room_name, p.channel_name)
+            players.append({
+                'uuid': p.uuid,
+                'username': p.username,
+                'photo': p.photo,
+                'hp': 100,
+            })
+        cache.set(room_name, players, 3600)
+        for p in ps:
+            async_to_sync(channels_layer.group_send)(
+                room_name,
+                {
+                    "type": "group_send_event",
+                    "event": "create_player",
+                    "uuid": p.uuid,
+                    "username": p.username,
+                    "photo": p.photo,
+                }
+            )
 
-        if work.op == Operation.ADD:
-            val = work.num1 + work.num2
-        elif work.op == Operation.SUBTRACT:
-            val = work.num1 - work.num2
-        elif work.op == Operation.MULTIPLY:
-            val = work.num1 * work.num2
-        elif work.op == Operation.DIVIDE:
-            if work.num2 == 0:
-                raise InvalidOperation(work.op, 'Cannot divide by 0')
-            val = work.num1 / work.num2
+    def increase_waiting_time(self):
+        for player in self.players:
+            player.waiting_time += 1
+
+    def match(self):
+        while len(self.players) >= 3:
+            self.players = sorted(self.players, key=lambda  p: p.score)
+            flag = False
+            for i in range(len(self.players) - 2):
+                a, b, c = self.players[i], self.players[i+1], self.players[i+2]
+                if self.check_match(a, b) and self.check_match(a, c) and self.check_match(b, c):
+                    self.match_success([a, b, c])
+                    self.players = self.players[:i] + self.players[i+3:]
+                    flag = True
+                    break
+
+            if not flag:
+                break
+
+        self.increase_waiting_time()
+
+
+class MatchHandler:
+    def add_player(self, score, uuid, username, photo, channel_name):
+        player = Player(score, uuid, username, photo, channel_name)
+        queue.put(player)
+        return 0
+
+
+def get_player_from_queue():
+    try:
+        return queue.get_nowait()
+    except:
+        return None
+
+
+def worker():
+    pool = Pool()
+    while True:
+        player = get_player_from_queue()
+        if player:
+            pool.add_player(player)
         else:
-            raise InvalidOperation(work.op, 'Invalid operation')
+            pool.match()
+            sleep(1)
 
-        log = SharedStruct()
-        log.key = logid
-        log.value = '%d' % (val)
-        self.log[logid] = log
 
-        return val
-
-    def getStruct(self, key):
-        print('getStruct(%d)' % (key))
-        return self.log[key]
-
-    def zip(self):
-        print('zip()')
+    # def __init__(self):
+    #     self.log = {}
+    #
+    # def ping(self):
+    #     print('ping()')
+    #
+    # def add(self, n1, n2):
+    #     print('add(%d,%d)' % (n1, n2))
+    #     return n1 + n2
+    #
+    # def calculate(self, logid, work):
+    #     print('calculate(%d, %r)' % (logid, work))
+    #
+    #     if work.op == Operation.ADD:
+    #         val = work.num1 + work.num2
+    #     elif work.op == Operation.SUBTRACT:
+    #         val = work.num1 - work.num2
+    #     elif work.op == Operation.MULTIPLY:
+    #         val = work.num1 * work.num2
+    #     elif work.op == Operation.DIVIDE:
+    #         if work.num2 == 0:
+    #             raise InvalidOperation(work.op, 'Cannot divide by 0')
+    #         val = work.num1 / work.num2
+    #     else:
+    #         raise InvalidOperation(work.op, 'Invalid operation')
+    #
+    #     log = SharedStruct()
+    #     log.key = logid
+    #     log.value = '%d' % (val)
+    #     self.log[logid] = log
+    #
+    #     return val
+    #
+    # def getStruct(self, key):
+    #     print('getStruct(%d)' % (key))
+    #     return self.log[key]
+    #
+    # def zip(self):
+    #     print('zip()')
 
 
 if __name__ == '__main__':
-    handler = CalculatorHandler()
-    processor = Calculator.Processor(handler)
+    handler = MatchHandler()
+    processor = Match.Processor(handler)
     transport = TSocket.TServerSocket(host='127.0.0.1', port=9090)
     tfactory = TTransport.TBufferedTransportFactory()
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
@@ -73,6 +180,8 @@ if __name__ == '__main__':
         processor, transport, tfactory, pfactory)
     # server = TServer.TThreadPoolServer(
     #     processor, transport, tfactory, pfactory)
+
+    Thread(target=worker, daemon=True).start()
 
     print('Starting the server...')
     server.serve()
