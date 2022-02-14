@@ -120,6 +120,7 @@ class Player extends AcGameObject{
         })
 
         this.playground.game_map.$canvas.keydown(function (e){
+            console.log("keydown");
             if(e.which === 13){   //enter
                 if(outer.playground.mode === "multi mode"){    //打开聊天框
                     outer.playground.chat_field.show_input();
@@ -211,12 +212,15 @@ class Player extends AcGameObject{
             let vx = Math.cos(angle), vy = Math.sin(angle);
             let color = this.color;
             let speed = this.speed * 10;
-            let move_length = this.radius * Math.random() * 10;
+            let move_length = this.radius * Math.random() * 5;
             new Particle(this.playground, x, y, radius, vx, vy, color, speed, move_length);
         }
 
         this.radius -= damage;
+        console.log(this.radius)
+        console.log(this.eps)
         if(this.radius < this.eps){
+            console.log("销毁")
             this.destroy();
             return false;
         }
@@ -240,6 +244,7 @@ class Player extends AcGameObject{
     update(){
         this.spent_time += this.timedelta / 1000;
 
+        this.update_win();
         if(this.character === "me" && this.playground.state === "fighting"){
             this.update_coldtime();
         }
@@ -247,6 +252,14 @@ class Player extends AcGameObject{
         this.update_move();
         this.render();
     }
+
+    update_win(){
+        if(this.playground.state === "fighting" && this.character === "me" && this.playground.players.length === 1){
+            this.playground.state = "over";
+            this.playground.score_board.win();
+        }
+    }
+
 
     update_coldtime() {
         this.fireball_coldtime -= this.timedelta / 1000;
@@ -353,13 +366,18 @@ class Player extends AcGameObject{
             this.ctx.fillStyle = "rgb(0, 0, 255, 0.6)";
             this.ctx.fill();
         }
-
-
     }
 
     on_destroy() {
-        if(this.playground.state === "me")
-            this.playground.state = "over";
+        console.log(this.playground.state)
+        console.log(this.character)
+        if(this.character === "me"){
+            if(this.playground.state === "fighting"){
+                this.playground.state = "over";
+                this.playground.score_board.lose();
+            }
+        }
+
         for(let i = 0; i < this.playground.players.length; i++){
             if(this.playground.players[i] === this){
                 this.playground.players.splice(i, 1);

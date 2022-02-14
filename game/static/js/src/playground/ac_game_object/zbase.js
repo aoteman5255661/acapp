@@ -15,7 +15,6 @@ class AcGameObject{
         for(let i = 0; i < 8; i++){
             let x = parseInt(Math.floor(Math.random()*10));
             res += x;
-
         }
         return res;
     }
@@ -28,6 +27,10 @@ class AcGameObject{
 
     }
 
+    late_update(){   //在每一帧最后执行一次
+        this.render();
+    }
+
     on_destroy(){  //在被销毁前执行一次
 
     }
@@ -35,9 +38,10 @@ class AcGameObject{
     destroy(){  //删除物体
         this.on_destroy();
 
-        for(let i = 0; i < AC_GAME_OBJECTS.length; i++){
-            if(AC_GAME_OBJECTS[i] === this){
+        for (let i = 0; i < AC_GAME_OBJECTS.length; i ++ ) {
+            if (AC_GAME_OBJECTS[i] === this) {
                 AC_GAME_OBJECTS.splice(i, 1);
+                break;
             }
         }
     }
@@ -54,6 +58,12 @@ let AC_GAME_ANIMATION = function (timestamp){
             obj.update();
         }
     }
+
+    for(let i = 0; i < AC_GAME_OBJECTS.length; i++){
+        let obj = AC_GAME_OBJECTS[i];
+        obj.late_update();
+    }
+
     last_timestamp = timestamp;
 
     requestAnimationFrame(AC_GAME_ANIMATION);
