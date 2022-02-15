@@ -105,6 +105,12 @@
     cursor: pointer;
 }
 
+.ac-game-settings-bgm{
+    color: red;
+    display: inline;
+    cursor: pointer;
+}
+
 .ac-game-settings-register{
     height: 49vh;
     width: 20vw;

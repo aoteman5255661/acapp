@@ -7,8 +7,23 @@ class Settings{
         this.photo = "";
 
         this.$settings = $(`
+<audio  controls="controls" loop="loop" autoplay="autoplay" class="bgm" id="bgm" hidden="hidden">
+    <source src="https://app1432.acapp.acwing.com.cn/static/audio/bgm.mp3" type="audio/mpeg" />
+</audio>
+
+
 <div class="ac-game-settings">
-    <div class="ac-game-settings-login">   
+    <div class="ac-game-settings-bgm">
+        <div class="ac-game-settings-bgm-play">
+        播放音乐
+        </div>
+        <br>
+        <div class="ac-game-settings-bgm-pause">
+        暂停
+        </div>
+    </div>
+    
+    <div class="ac-game-settings-login" >   
         <div class="ac-game-settings-title">
         登录
         </div>
@@ -45,6 +60,7 @@ class Settings{
    
     
     <div class="ac-game-settings-register">
+    
         <div class="ac-game-settings-title">
         注册
         </div>
@@ -104,14 +120,24 @@ class Settings{
         this.$register_login = this.$register.find(".ac-game-settings-option");
         this.$register.hide();
 
+        this.$settings_acwing = this.$settings.find('.ac-game-settings-acwing')
         this.$acwing_login = this.$settings.find('.ac-game-settings-acwing img');
 
         this.root.$ac_game.append(this.$settings);
+        this.$bgmplay = this.$settings.find(".ac-game-settings-bgm-play")
+        this.$bgmpause = this.$settings.find(".ac-game-settings-bgm-pause")
 
         this.start();
     }
 
     start(){
+
+        console.log(window.location.host.toString());
+        if(window.location.host.toString() === "www.aoteman5259106.space"){
+            console.log("进入")
+            this.$settings_acwing.hide();
+        }
+
         if(this.platform === "ACAPP"){
             this.getinfo_acapp();
         }else{
@@ -121,11 +147,20 @@ class Settings{
         // this.getinfo();
         // this.add_listening_events();
     }
-
     add_listening_events(){
         let outer = this;
         this.add_listening_events_login();
         this.add_listening_events_register();
+
+        this.$bgmplay.click(function (){
+            console.log("点击播放")
+            $("audio#bgm")[0].play()
+        });
+
+        this.$bgmpause.click(function (){
+            console.log("点击暂停")
+            $("audio#bgm")[0].pause()
+        });
 
         this.$acwing_login.click(function(){
             outer.acwing_login();
@@ -158,7 +193,6 @@ class Settings{
             url: window.location.protocol + "//" + window.location.host + "/settings/acwing/web/apply_code/",
             type: "GET",
             success: function (resp){
-
                 console.log(resp);
                 if(resp.result === "success"){
                     window.location.replace(resp.apply_code_url);
@@ -201,7 +235,7 @@ class Settings{
         this.$register_error_message.empty();
 
         $.ajax({
-            url: window.location.protocol + "://" + window.location.host + "/settings/register",
+            url: window.location.protocol + "//" + window.location.host + "/settings/register",
             type: "GET",
             data:{
                 username: username,
@@ -252,14 +286,12 @@ class Settings{
             console.log("called from acapp_login   >>>>>  kkk     ")
             console.log(resp);
             if(resp.result === 'success'){
-                console.log('zzzzzzzzzzzzz')
                 outer.username = resp.username;
                 outer.photo = resp.photo;
                 console.log(outer.username)
                 console.log(outer.photo)
                 outer.hide();
                 outer.root.menu.show();
-                console.log(111111)
             }
         });
     }
@@ -286,7 +318,6 @@ class Settings{
         console.log((window.location.host))
 
         $.ajax({
-
             url:  window.location.protocol + "//" + window.location.host + "/settings/getinfo",
             type: "GET",
             data: {
