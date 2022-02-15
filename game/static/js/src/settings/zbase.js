@@ -155,7 +155,7 @@ class Settings{
 
      acwing_login(){
         $.ajax({
-            url: "https://app1432.acapp.acwing.com.cn/settings/acwing/web/apply_code/",
+            url: window.location.protocol + "//" + window.location.host + "/settings/acwing/web/apply_code/",
             type: "GET",
             success: function (resp){
 
@@ -176,7 +176,7 @@ class Settings{
         console.log(username)
         console.log(password)
         $.ajax({
-            url: "https://app1432.acapp.acwing.com.cn/settings/login/",
+            url: window.location.protocol + "//" + window.location.host + "/settings/login/",
             type: "GET",
             data:{
                 username: username,
@@ -199,10 +199,9 @@ class Settings{
         let password = this.$register_password.val();
         let password_confirm = this.$register_password_confirm.val();
         this.$register_error_message.empty();
-        console.log("yyyyyyyyyy")
 
         $.ajax({
-            url: "https://app1432.acapp.acwing.com.cn/settings/register",
+            url: window.location.protocol + "://" + window.location.host + "/settings/register",
             type: "GET",
             data:{
                 username: username,
@@ -225,7 +224,7 @@ class Settings{
             this.root.AcWingOS.api.window.close();
         }else{
             $.ajax({
-                url: "https://app1432.acapp.acwing.com.cn/settings/logout/",
+                url: window.location.protocol + "//" + window.location.host + "/settings/logout/",
                 type: "GET",
                 success: function (resp){
                     console.log(resp);
@@ -284,9 +283,11 @@ class Settings{
 
     getinfo_web(){
         let outer = this;
+        console.log((window.location.host))
 
         $.ajax({
-            url: "https://app1432.acapp.acwing.com.cn/settings/getinfo/",
+
+            url:  window.location.protocol + "//" + window.location.host + "/settings/getinfo",
             type: "GET",
             data: {
                 platform: outer.platform,
