@@ -43,7 +43,7 @@ class Settings{
                 </div>
         </div>
         <div class="ac-game-settings-error-message">
-            用户名密码错误
+     
         </div>
         <div class="ac-game-settings-option">
             注册
@@ -85,7 +85,9 @@ class Settings{
                     <button>注册</button>
                 </div>
         </div>
-
+        <div class="ac-game-settings-error-message">
+     
+        </div>
         <div class="ac-game-settings-option">
             登录
         </div>
@@ -107,7 +109,6 @@ class Settings{
         this.$login_submit = this.$login.find(".ac-game-settings-submit button");
         this.$login_error_message = this.$login.find(".ac-game-settings-error-message");
         this.$login_register = this.$login.find(".ac-game-settings-option");
-
 
         this.$login.hide();
 
@@ -131,7 +132,6 @@ class Settings{
     }
 
     start(){
-
         console.log(window.location.host.toString());
         if(window.location.host.toString() === "www.aoteman5259106.space"){
             console.log("进入")
@@ -144,8 +144,6 @@ class Settings{
             this.getinfo_web();
             this.add_listening_events();
         }
-        // this.getinfo();
-        // this.add_listening_events();
     }
     add_listening_events(){
         let outer = this;
