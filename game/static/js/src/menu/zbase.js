@@ -26,8 +26,6 @@ class AcGameMenu{
     
 </div>
 
-
-
         `);
         this.$menu.hide();
         this.root.$ac_game.append(this.$menu);
